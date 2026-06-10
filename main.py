@@ -6,36 +6,20 @@ st.title("📊 Institutional Money Scanner Pro")
 
 stocks = ["AAPL", "TSLA", "NVDA", "AMZN"]
 
-def analyze_stock(symbol):
-    try:
-        stock = yf.Ticker(symbol)
-        data = stock.history(period="5d")
+def analyze(symbol):
+    stock = yf.Ticker(symbol)
+    data = stock.history(period="5d")
 
-        if data is None or data.empty:
-            return {
-                "Symbol": symbol,
-                "Price": "No Data",
-                "Volume": "No Data"
-            }
+    if data is None or data.empty:
+        return [symbol, "No Data", "No Data"]
 
-        last_price = float(data["Close"].iloc[-1])
-        avg_volume = float(data["Volume"].mean())
+    price = data["Close"].iloc[-1]
+    volume = data["Volume"].mean()
 
-        return {
-            "Symbol": symbol,
-            "Price": round(last_price, 2),
-            "Volume": int(avg_volume)
-        }
+    return [symbol, round(price, 2), int(volume)]
 
-    except Exception as e:
-        return {
-            "Symbol": symbol,
-            "Price": "Error",
-            "Volume": str(e)
-        }
+rows = [analyze(s) for s in stocks]
 
-results = [analyze_stock(s) for s in stocks]
-
-df = pd.DataFrame(results)
+df = pd.DataFrame(rows, columns=["Symbol", "Price", "Volume"])
 
 st.dataframe(df)
