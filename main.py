@@ -1,27 +1,25 @@
+import streamlit as st
 import yfinance as yf
 import pandas as pd
 
-# قائمة أسهم مثال (نقدر نطورها لاحقاً)
+st.title("📊 Institutional Money Scanner")
+
 stocks = ["AAPL", "TSLA", "NVDA", "AMZN", "MSFT"]
 
-def get_stock_data(symbol):
-    stock = yf.Ticker(symbol)
-    hist = stock.history(period="5d")
-    return hist
-
 def analyze_stock(symbol):
-    data = get_stock_data(symbol)
-    
+    stock = yf.Ticker(symbol)
+    data = stock.history(period="5d")
+
     if data.empty:
         return None
 
-    last_close = data["Close"].iloc[-1]
+    last_price = data["Close"].iloc[-1]
     avg_volume = data["Volume"].mean()
 
     return {
-        "symbol": symbol,
-        "last_price": last_close,
-        "avg_volume": avg_volume
+        "Symbol": symbol,
+        "Price": round(last_price, 2),
+        "Avg Volume": int(avg_volume)
     }
 
 results = []
@@ -32,4 +30,5 @@ for s in stocks:
         results.append(result)
 
 df = pd.DataFrame(results)
-print(df)
+
+st.dataframe(df)
